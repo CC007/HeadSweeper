@@ -1,0 +1,13 @@
+predefinedcategoriesurl: http://heads.freshcoal.com/mainapi.php?query=
+customcategoriesurl: http://heads.freshcoal.com/api.php?query=
+
+predefinedcategories:
+    food: 1
+
+customcategories:
+    sweeper:
+        id: 2
+        urls: 
+        - Minesweeper
+        - tnt+[1.8]
+            

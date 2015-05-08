@@ -1,0 +1,20 @@
+name: HeadSweeper
+version: 0.1
+main: com.github.cc007.headsweeper.HeadSweeper
+author: Rik Schaaf aka CC007 <http://coolcat007.nl/>
+description: >
+             Spawn in heads as block
+
+commands:
+    headsweeper:
+        description: "Create, reset or delete a game or update the heads that are used in the game"
+        aliases: [sweeper, mcsweeper]
+permissions:
+    sweeper.interact:
+        description: Allows the user play the game
+    sweeper.update:
+        description: Allows the user to update the heads
+    sweeper.reset:
+        description: Allows the user reset the game
+    sweeper.manage:
+        description: Allows the user create or delete a game
