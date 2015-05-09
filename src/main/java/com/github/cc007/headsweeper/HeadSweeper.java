@@ -56,6 +56,7 @@ import org.json.JSONObject;
 public class HeadSweeper extends HeadsPlugin {
 
     public static Head UNKNOWN_HEAD;
+    public static Head FLAG_HEAD;
     public static Head BOMB_HEAD;
     public static Map<Integer, Head> NUMBER_HEADS;
 
@@ -69,6 +70,11 @@ public class HeadSweeper extends HeadsPlugin {
     @Override
     public void onEnable() {
         log = getLogger();
+        
+        /* Config stuffs */
+        this.getCategoriesConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+        
         /* Setup the utils */
         log.log(Level.INFO, "Initializing minesweeper heads...");
         headsUtils = HeadsUtils.getInstance(log);
@@ -91,9 +97,6 @@ public class HeadSweeper extends HeadsPlugin {
         getCommand("headsweeper").setExecutor(new HeadSweeperCommand(this));
         getCommand("headsweeper").setTabCompleter(new HeadSweeperTabCompleter(this));
 
-        /* Config stuffs */
-        this.getCategoriesConfig().options().copyDefaults(true);
-        saveDefaultConfig();
     }
 
     @Override
@@ -224,6 +227,8 @@ public class HeadSweeper extends HeadsPlugin {
         for (Head head : heads) {
             if (head.getName().equalsIgnoreCase("Minesweeper Unknown Tile")) {
                 UNKNOWN_HEAD = head;
+            } else if (head.getName().equalsIgnoreCase("Minesweeper Flag Tile")) {
+                FLAG_HEAD = head;
             } else if (head.getName().equalsIgnoreCase("TNT [1.8]")) {
                 BOMB_HEAD = head;
             } else {

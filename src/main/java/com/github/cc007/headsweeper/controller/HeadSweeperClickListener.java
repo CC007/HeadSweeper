@@ -24,6 +24,7 @@
 package com.github.cc007.headsweeper.controller;
 
 import com.github.cc007.headsweeper.HeadSweeper;
+import com.github.cc007.mcsweeper.api.Field;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -54,7 +55,7 @@ public class HeadSweeperClickListener implements Listener {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     headClicked(event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ(), event.getPlayer(), activeGame);
                 } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                    event.getPlayer().sendMessage("This is game has game number " + plugin.getController().getGameNr(activeGame));
+                    headFlagged(event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ(), event.getPlayer(), activeGame);
                 }
             }
         }
@@ -76,6 +77,24 @@ public class HeadSweeperClickListener implements Listener {
             }
         } else {
             player.sendMessage("The game has already ended. Type \"/sweeper reset " + gameNr + "\" to reset the game");
+        }
+    }
+
+    public void headFlagged(int x, int y, int z, Player player, HeadSweeperGame activeGame) {
+        int gameNr = plugin.getController().getGameNr(activeGame);
+        int fieldX = x - activeGame.getX();
+        int fieldY = z - activeGame.getZ();
+        if (activeGame.getGame().getField().getState(fieldX, fieldY) < Field.BOMB_STATE) {
+            if (!activeGame.getGame().hasWon() && !activeGame.getGame().hasLost()) {
+                activeGame.getGame().flag(fieldX, fieldY);
+                plugin.saveGames();
+                activeGame.placeHeads();
+                activeGame.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
+            } else {
+                player.sendMessage("This is game has game number " + gameNr);
+            }
+        } else {
+            player.sendMessage("This is game has game number " + gameNr);
         }
     }
 }

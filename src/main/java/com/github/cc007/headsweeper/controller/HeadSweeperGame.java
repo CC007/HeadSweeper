@@ -203,6 +203,8 @@ public class HeadSweeperGame {
             return HeadSweeper.BOMB_HEAD;
         } else if (game.getField().getState(x, y) == Field.UNKNOWN_STATE) {
             return HeadSweeper.UNKNOWN_HEAD;
+        } else if (game.getField().getState(x, y) == Field.FLAG_STATE) {
+            return HeadSweeper.FLAG_HEAD;
         } else {
             return HeadSweeper.NUMBER_HEADS.get(game.getField().getState(x, y));
         }
