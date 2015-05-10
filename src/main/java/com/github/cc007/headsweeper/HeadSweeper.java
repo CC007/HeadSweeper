@@ -31,7 +31,8 @@ import com.github.cc007.headsutils.heads.Head;
 import com.github.cc007.headsutils.heads.HeadsCategory;
 import com.github.cc007.headsweeper.controller.HeadSweeperClickListener;
 import com.github.cc007.headsweeper.controller.HeadSweeperController;
-import com.github.cc007.headsweeper.controller.HeadSweeperGame;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +48,6 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.json.JSONObject;
 
 /**
  *
@@ -81,10 +81,10 @@ public class HeadSweeper extends HeadsPlugin {
         headsUtils.loadCategory("sweeper");
         initHeads();
         log.log(Level.INFO, "Sweeperheads initialized");
-
+        
         /* setup controller */
         loadGames();
-
+        
         /* setup the listener */
         clickListener = new HeadSweeperClickListener(this);
 
@@ -180,7 +180,8 @@ public class HeadSweeper extends HeadsPlugin {
                 log.log(Level.SEVERE, "Couldn't create sweeperGames.json");
             }
         }
-        JSONObject json = controller.serialize();
+        
+        JsonObject json = controller.serialize();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
             writer.write(json.toString());
             writer.flush();
@@ -196,7 +197,6 @@ public class HeadSweeper extends HeadsPlugin {
      */
     public void loadGames() {
         log.log(Level.INFO, "Create controller...");
-        controller = new HeadSweeperController(this);
         log.log(Level.INFO, "Controller created.");
         log.log(Level.INFO, "Loading games...");
         File file = new File(getDataFolder(), "sweeperGames.json");
@@ -210,8 +210,14 @@ public class HeadSweeper extends HeadsPlugin {
             while (scanner.hasNextLine()) {
                 jsonString += scanner.nextLine();
             }
-            JSONObject json = new JSONObject(jsonString);
-            controller.deserialize(json);
+            
+            if (jsonString == "") {
+                jsonString = "{}";
+            }
+            
+            JsonParser parser = new JsonParser();
+            
+            controller = new HeadSweeperController(parser.parse(jsonString).getAsJsonObject(), this);
             log.log(Level.INFO, "Games loaded.");
         } catch (FileNotFoundException ex) {
             log.log(Level.SEVERE, "Couldn't read from sweeperGames.json", ex);
@@ -243,4 +249,5 @@ public class HeadSweeper extends HeadsPlugin {
             getLogger().log(Level.SEVERE, "Minesweeper heads have not been properly initialized!");
         }
     }
+    
 }

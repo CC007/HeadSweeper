@@ -24,16 +24,14 @@
 package com.github.cc007.headsweeper.commands;
 
 import com.github.cc007.headsweeper.HeadSweeper;
-import com.github.cc007.headsplugin.heads.HeadsPlacer;
 import com.github.cc007.headsweeper.controller.HeadSweeperGame;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -49,77 +47,96 @@ public class HeadSweeperCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
+
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.GOLD + "Use: /(headsweeper|mcsweeper|sweeper) (updateheads | reset <boardnr> | create (<worldname> <xloc> <yloc> <zloc>|here) <width in x> <depth in z> <bombcount> | delete <boardnr>)");
-        } else {
-            if (args[0].equalsIgnoreCase("updateheads") && sender.hasPermission("sweeper.update")) {
+            sender.sendMessage(ChatColor.GOLD + "Use: /headsweeper (updateheads | reset <boardnr> | create (<worldname> <xloc> <yloc> <zloc>|here) <width in x> <depth in z> <bombcount> | delete <boardnr>)");
+            return false;
+        }
+
+        switch (args[0].toLowerCase()) {
+            case "updateheads":
+
+                if (!sender.hasPermission("sweeper.update")) {
+                    return false;
+                }
+
                 plugin.getHeadsUtils().loadCategory("sweeper");
+
                 return true;
-            }
-            if (args[0].equalsIgnoreCase("reset") && sender.hasPermission("sweeper.reset")) {
+            case "reset":
                 if (args.length < 2 || !isInteger(args[1])) {
                     sender.sendMessage("You didn't specify which minesweeper board to reset!");
-                } else {
-                    HeadSweeperGame game = plugin.getController().getGame(Integer.parseInt(args[1]));
-                    if (game != null) {
-                        game.getGame().resetField();
-                        game.placeHeads();
-                        game.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
-                        sender.sendMessage(ChatColor.GREEN + "The board has been reset.");
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "There is no game with that game number!" + ChatColor.GOLD + "Tip: rightclick a game to get its number.");
-                    }
+                    return false;
                 }
-                return true;
-            }
-            if (args[0].equalsIgnoreCase("create") && sender.hasPermission("sweeper.manage")) {
-                if (args.length == 5) {
-                    if (!args[1].equalsIgnoreCase("here")) {
-                        sender.sendMessage(ChatColor.RED + "You didn't use this command correctly! Use: /(headsweeper|mcsweeper|sweeper) create (<worldname> <xloc> <yloc> <zloc>|here) <width in x> <depth in z> <bombcount>");
-                    } else if (!isInteger(args[2]) || !isInteger(args[3]) || !isInteger(args[4])) {
-                        sender.sendMessage(ChatColor.RED + "Not all of the parameters you gave were numbers!");
-                    } else {
-                        if (!(sender instanceof Player)) {
-                            sender.sendMessage(ChatColor.RED + "Only players can use \"here\" in this command!");
-                            return true;
-                        }
-                        Player player = (Player) sender;
-                        plugin.getController().createNewField(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), sender, player.getWorld());
-                    }
-                } else if (args.length == 8) {
-                    World world = Bukkit.getWorld(args[1]);
-                    if (world == null) {
-                        if (!(sender instanceof Player)) {
-                            sender.sendMessage(ChatColor.RED + "The world that you specified does not exist! " + ChatColor.GOLD + "Tip: the first world is called \"" + plugin.getServer().getWorlds().get(0).getName() + "\".");
-                            return true;
-                        }
-                        Player player = (Player) sender;
-                        sender.sendMessage(ChatColor.RED + "The world that you specified does not exist! " + ChatColor.GOLD + "Tip: the world you are in is called \"" + player.getWorld().getName() + "\".");
-                    } else if (!isInteger(args[2]) || !isInteger(args[3]) || !isInteger(args[4]) || !isInteger(args[5]) || !isInteger(args[6]) || !isInteger(args[7])) {
-                        sender.sendMessage(ChatColor.RED + "Not all of the parameters you gave were numbers!");
-                    } else {
-                        plugin.getController().createNewField(Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]), sender, world);
 
-                    }
-                } else {
-                    sender.sendMessage(ChatColor.RED + "You didn't use this command correctly! Use: /(headsweeper|mcsweeper|sweeper) create (<worldname> <xloc> <yloc> <zloc>|here) <width in x> <depth in z> <bombcount>");
+                HeadSweeperGame game = plugin.getController().getGame(Integer.parseInt(args[1]));
+
+                if (game == null) {
+                    sender.sendMessage(ChatColor.RED + "There is no game with that game number!" + ChatColor.GOLD + "Tip: rightclick a game to get its number.");
+                    return false;
                 }
+
+                game.getGame().resetField();
+                game.placeHeads();
+                //game.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
+                
+                sender.sendMessage(ChatColor.GREEN + "The board has been reset.");
+
                 return true;
-            }
-            if (args[0].equalsIgnoreCase("delete") && sender.hasPermission("sweeper.manage")) {
+            case "create":
+
+                if (args.length < 5) {
+                    return false;
+                }
+
+                Location createLocation;
+                int width,
+                 height,
+                 bombCount;
+
+                if (args[1].equalsIgnoreCase("here")) {
+
+                    if (args.length != 5 || !isInteger(args[2]) || !isInteger(args[3]) || !isInteger(args[4]) || !(sender instanceof Player)) {
+                        return false;
+                    }
+
+                    width = Integer.parseInt(args[2]);
+                    height = Integer.parseInt(args[3]);
+                    bombCount = Integer.parseInt(args[4]);
+
+                    createLocation = ((Player) sender).getLocation();
+                } else {
+
+                    if (args.length != 8 || !isInteger(args[2]) || !isInteger(args[3]) || !isInteger(args[4]) || !isInteger(args[5]) || !isInteger(args[6]) || !isInteger(args[7]) || Bukkit.getWorld(args[1]) == null) {
+                        return false;
+                    }
+
+                    width = Integer.parseInt(args[5]);
+                    height = Integer.parseInt(args[6]);
+                    bombCount = Integer.parseInt(args[7]);
+
+                    createLocation = new Location(Bukkit.getWorld(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]));
+                }
+
+                plugin.getController().createNewField(createLocation, width, height, bombCount, sender);
+
+                return true;
+            case "delete":
+
                 if (args.length < 2 || !isInteger(args[1])) {
                     sender.sendMessage(ChatColor.RED + "You didn't specify which minesweeper board to delete!");
+                    return false;
+                }
+
+                if (!plugin.getController().removeGame(Integer.parseInt(args[1]))) {
+                    sender.sendMessage(ChatColor.RED + "There is no game with that game number!" + ChatColor.GOLD + "Tip: rightclick a game to get its number.");
                 } else {
-                    if (plugin.getController().removeGame(Integer.parseInt(args[1]))) {
-                        sender.sendMessage(ChatColor.GREEN + "The board has been deleted.");
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "There is no game with that game number!" + ChatColor.GOLD + "Tip: rightclick a game to get its number.");
-                    }
+                    sender.sendMessage(ChatColor.GREEN + "The board has been deleted.");
                 }
                 return true;
-            }
+            default:
+                return false;
         }
-        return false;
     }
 
     public static boolean isInteger(String str) {
