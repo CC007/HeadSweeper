@@ -74,7 +74,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <minimizeJar>true</minimizeJar>
+              <minimizeJar>false</minimizeJar>
               <artifactSet>
                 <excludes>
                   <exclude>org.spigotmc:*</exclude>
@@ -108,12 +108,10 @@
       <url>https://github.com/CC007/maven-repo/raw/master/lib-releases</url>
     </repository>
     <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
+      <releases />
       <snapshots />
-      <id>RIK-DESKTOP-snapshots</id>
-      <url>http://localhost:8080/artifactory/libs-snapshot-local</url>
+      <id>spigot-repo</id>
+      <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
     </repository>
     <repository>
       <id>vault-repo</id>
@@ -121,22 +119,6 @@
     </repository>
   </repositories>
   <dependencies>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot</artifactId>
-      <version>1.8-R0.1-20150429.234816-2</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>gson</artifactId>
-          <groupId>com.google.code.gson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>guava</artifactId>
-          <groupId>com.google.guava</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
@@ -146,22 +128,6 @@
         <exclusion>
           <artifactId>guava</artifactId>
           <groupId>com.google.guava</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
-      <version>1.8-R0.1-20150429.234833-1</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>gson</artifactId>
-          <groupId>com.google.code.gson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>bukkit</artifactId>
-          <groupId>org.bukkit</groupId>
         </exclusion>
       </exclusions>
     </dependency>

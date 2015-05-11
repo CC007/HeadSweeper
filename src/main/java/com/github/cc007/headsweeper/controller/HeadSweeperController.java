@@ -25,13 +25,16 @@ package com.github.cc007.headsweeper.controller;
 
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.mcsweeper.implementation.MineSweeper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  *
@@ -47,8 +50,16 @@ public class HeadSweeperController {
         this.plugin = plugin;
     }
 
-    public HeadSweeperController(HeadSweeper plugin) {
-        this(plugin, new ArrayList<HeadSweeperGame>());
+    public HeadSweeperController(JsonObject input, HeadSweeper plugin) {
+        this.sweeperGames = new ArrayList<>();
+        JsonArray sweeperGamesJSON = input.getAsJsonArray("sweeperGames");
+        if (sweeperGamesJSON != null) {
+            for (int i = 0; i < sweeperGamesJSON.size(); i++) {
+                HeadSweeperGame sweeperGame = new HeadSweeperGame(sweeperGamesJSON.get(i).getAsJsonObject(), plugin);
+                sweeperGames.add(sweeperGame);
+            }
+        }
+        this.plugin = plugin;
     }
 
     public void createNewField(int x, int y, int z, int width, int height, int bombCount, CommandSender sender, World world) {
@@ -66,6 +77,10 @@ public class HeadSweeperController {
         }
     }
 
+    public void createNewField(Location location, int width, int height, int bombCount, CommandSender sender) {
+        this.createNewField(location.getBlockX(), location.getBlockY(), location.getBlockZ(), width, height, bombCount, sender, location.getWorld());
+    }
+
     public boolean isIntersecting(World world, int x, int y, int z, int width, int height) {
         for (HeadSweeperGame sweeperGame : sweeperGames) {
             if (sweeperGame.isIntersecting(world, x, y, z, width, height)) {
@@ -76,11 +91,23 @@ public class HeadSweeperController {
     }
 
     public HeadSweeperGame getActiveGame(World world, int x, int y, int z) {
+        return this.getActiveGame(world.getBlockAt(x, y, z));
+    }
+
+    public HeadSweeperGame getActiveGame(Block block) {
+        
+        int x = block.getX(), y = block.getY(), z = block.getZ();
+        
+        if (!block.hasMetadata("sweeperBlock") || !block.getMetadata("sweeperBlock").get(0).asString().equals("headBlock")) {
+            return null;
+        }
+
         for (HeadSweeperGame sweeperGame : sweeperGames) {
-            if (sweeperGame.isInField(world, x, y, z)) {
+            if (sweeperGame.isInField(block.getWorld(), x, y, z)) {
                 return sweeperGame;
             }
         }
+        
         return null;
     }
 
@@ -113,22 +140,14 @@ public class HeadSweeperController {
         return sweeperGames;
     }
 
-    public JSONObject serialize() {
-        JSONObject output = new JSONObject();
-        JSONArray sweeperGamesJSON = new JSONArray();
+    public JsonObject serialize() {
+        JsonObject output = new JsonObject();
+        JsonArray sweeperGamesJSON = new JsonArray();
         for (HeadSweeperGame sweeperGame : sweeperGames) {
-            sweeperGamesJSON.put(sweeperGame.serialize());
+            sweeperGamesJSON.add(sweeperGame.serialize());
         }
-        output.put("sweeperGames", sweeperGamesJSON);
+        output.add("sweeperGames", sweeperGamesJSON);
         return output;
     }
 
-    public void deserialize(JSONObject input) {
-        JSONArray sweeperGamesJSON = input.getJSONArray("sweeperGames");
-        for (int i = 0; i < sweeperGamesJSON.length(); i++) {
-            HeadSweeperGame sweeperGame = new HeadSweeperGame(plugin);
-            sweeperGame.deserialize(sweeperGamesJSON.getJSONObject(i));
-            sweeperGames.add(sweeperGame);
-        }
-    }
 }

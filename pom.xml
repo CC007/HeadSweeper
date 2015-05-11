@@ -46,12 +46,11 @@
             <id>cc007-lib-releases-repo</id>
             <url>https://github.com/CC007/maven-repo/raw/master/lib-releases</url>
         </repository>
-        <!-- bukkit/spigot repo, PRIVATE: NEEDS TO BE CHANGED, IN ORDER TO BE ABLE TO BUILD!!  -->
         <repository>
-            <id>RIK-DESKTOP-snapshots</id>
-            <url>http://localhost:8080/artifactory/libs-snapshot-local</url>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
             <releases>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
@@ -66,23 +65,6 @@
     </repositories>
     <dependencies>
         
-        <!-- Spigot API -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.8-R0.1-20150429.234816-2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.code.gson</groupId>
-                    <artifactId>gson</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        
         <!-- Bukkit API -->
         <dependency>
             <groupId>org.bukkit</groupId>
@@ -96,22 +78,6 @@
             </exclusions>
         </dependency>
         
-        <!-- Craftbukkit API -->
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
-            <version>1.8-R0.1-20150429.234833-1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.code.gson</groupId>
-                    <artifactId>gson</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bukkit</groupId>
-                    <artifactId>bukkit</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- HeadsPlugin API -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -134,15 +100,9 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>MCSweeper</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
         </dependency>
         
-        <!-- JSON -->
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20141113</version>
-        </dependency>
     </dependencies>
 
     <!-- Build settings -->
@@ -209,7 +169,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                             <artifactSet>
                                 <excludes>
                                     <exclude>org.spigotmc:*</exclude>

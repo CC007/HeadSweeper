@@ -30,13 +30,15 @@ import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.mcsweeper.api.Field;
 import com.github.cc007.mcsweeper.api.Sweeper;
 import com.github.cc007.mcsweeper.implementation.MineSweeper;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.gson.JsonObject;
+import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.json.JSONObject;
 
 /**
  *
@@ -49,7 +51,7 @@ public class HeadSweeperGame {
     private int z;
     private Sweeper game;
     private World world;
-    Plugin plugin;
+    private final Plugin plugin;
 
     public HeadSweeperGame(int x, int y, int z, Sweeper game, World world, Plugin plugin) {
         this.x = x;
@@ -58,10 +60,31 @@ public class HeadSweeperGame {
         this.game = game;
         this.world = world;
         this.plugin = plugin;
+        
+        initMetaData();
     }
 
-    public HeadSweeperGame(Plugin plugin) {
+    public HeadSweeperGame(JsonObject input, Plugin plugin) {
+        
         this.plugin = plugin;
+        
+        x = input.getAsJsonPrimitive("x").getAsInt();
+        y = input.getAsJsonPrimitive("y").getAsInt();
+        z = input.getAsJsonPrimitive("z").getAsInt();
+        
+        game = new MineSweeper(true);
+        game.deserialize(input.getAsJsonObject("game"));
+        
+        world = null;
+        
+        try {
+            UUID worldUID = UUID.fromString(input.getAsJsonPrimitive("world").getAsString());
+            world = Bukkit.getServer().getWorld(worldUID);
+        } catch (IllegalArgumentException e) {
+            world = Bukkit.getServer().getWorld(input.getAsJsonPrimitive("world").getAsString());
+        }
+        
+        initMetaData();
     }
 
     /**
@@ -185,7 +208,7 @@ public class HeadSweeperGame {
             for (int j = 0; j < game.getField().getHeight(); j++) {
                 Head head = getHeadAt(i, j);
                 ItemStack stack = HeadCreator.getItemStack(head);
-                HeadsPlacer.placeHead(stack, x + i, y, z + j, 0, world, plugin.getLogger());
+                HeadsPlacer.placeHead(stack, x + i, y, z + j, 0, world, Bukkit.getLogger());
             }
         }
     }
@@ -210,22 +233,29 @@ public class HeadSweeperGame {
         }
     }
 
-    public JSONObject serialize() {
-        JSONObject output = new JSONObject();
-        output.put("x", x);
-        output.put("y", y);
-        output.put("z", z);
-        output.put("game", game.serialize());
-        output.put("world", world.getName());
+    public JsonObject serialize() {
+        JsonObject output = new JsonObject();
+        output.addProperty("x", x);
+        output.addProperty("y", y);
+        output.addProperty("z", z);
+        output.add("game", game.serialize());
+        output.addProperty("world", world.getUID().toString());
         return output;
     }
 
-    public void deserialize(JSONObject input) {
-        x = input.getInt("x");
-        y = input.getInt("y");
-        z = input.getInt("z");
-        game = new MineSweeper(true);
-        game.deserialize(input.getJSONObject("game"));
-        world = plugin.getServer().getWorld(input.getString("world"));
+    private void initMetaData() {
+        for (int x = this.getX(); x <  this.getX() + this.getGame().getField().getWidth(); x++) {
+                for (int z = this.getZ(); z <  this.getZ() + this.getGame().getField().getHeight(); z++) {
+                    
+                    Block headBlock = this.getWorld().getBlockAt(x, this.getY(), z);
+                    headBlock.setMetadata("sweeperBlock", new FixedMetadataValue(plugin, "headBlock"));
+                    
+                    if (this.getY() != 0) {
+                        Block underBlock = this.getWorld().getBlockAt(x, this.getY() - 1, z);
+                        underBlock.setMetadata("sweeperBlock", new FixedMetadataValue(plugin, "underBlock"));
+                    }
+                }
+            }
     }
+    
 }
