@@ -129,6 +129,7 @@ public class HeadSweeperController {
     public boolean removeGame(int gameNr) {
         if (gameNr < sweeperGames.size()) {
             getGame(gameNr).placeAir();
+            getGame(gameNr).removeMetaData();
             sweeperGames.remove(gameNr);
             plugin.saveGames();
             return true;

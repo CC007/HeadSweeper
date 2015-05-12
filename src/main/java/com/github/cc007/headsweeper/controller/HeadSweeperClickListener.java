@@ -26,6 +26,7 @@ package com.github.cc007.headsweeper.controller;
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.mcsweeper.api.Field;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -48,24 +49,24 @@ public class HeadSweeperClickListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        
+
         Block clickedBlock = event.getClickedBlock();
 
         if (clickedBlock == null) {
             return;
         }
-        
+
         if (clickedBlock.hasMetadata("sweeperBlock") && clickedBlock.getMetadata("sweeperBlock").get(0).asString().equals("underBlock")) {
             event.setCancelled(true);
             return;
         }
 
         HeadSweeperGame activeGame = plugin.getController().getActiveGame(clickedBlock.getWorld(), clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ());
-        
+
         if (activeGame == null) {
             return;
         }
-        
+
         event.setCancelled(true);
         if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
             headClicked(event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ(), event.getPlayer(), activeGame);
@@ -76,11 +77,14 @@ public class HeadSweeperClickListener implements Listener {
     }
 
     public void headClicked(int x, int y, int z, Player player, HeadSweeperGame activeGame) {
-
+        if (!player.hasPermission("sweeper.interact")) {
+            player.sendMessage(ChatColor.RED + "You don't have the permission to play minesweeper games. Ask an operator if you think you should have the permission.");
+            return;
+        }
         int gameNr = plugin.getController().getGameNr(activeGame);
 
         if (activeGame.getGame().hasWon() || activeGame.getGame().hasLost()) {
-            player.sendMessage("The game has already ended. Type \"/sweeper reset " + gameNr + "\" to reset the game");
+            player.sendMessage(ChatColor.RED + "The game has already ended. Reset this board to play a new game.");
             return;
         }
 
@@ -91,9 +95,9 @@ public class HeadSweeperClickListener implements Listener {
         activeGame.placeHeads();
         //activeGame.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
         if (activeGame.getGame().hasWon()) {
-            player.sendMessage("You have won the game! Type \"/sweeper reset " + gameNr + "\" to reset the game");
+            player.sendMessage(ChatColor.GREEN + "You have won the game! Reset the board to play another game.");
         } else if (activeGame.getGame().hasLost()) {
-            player.sendMessage("You have lost the game! Type \"/sweeper reset " + gameNr + "\" to reset the game");
+            player.sendMessage(ChatColor.RED + "You have lost the game! Reset the board to play another game.");
         }
 
     }
@@ -102,17 +106,16 @@ public class HeadSweeperClickListener implements Listener {
         int gameNr = plugin.getController().getGameNr(activeGame);
         int fieldX = x - activeGame.getX();
         int fieldY = z - activeGame.getZ();
-        if (activeGame.getGame().getField().getState(fieldX, fieldY) < Field.BOMB_STATE) {
-            if (!activeGame.getGame().hasWon() && !activeGame.getGame().hasLost()) {
-                activeGame.getGame().flag(fieldX, fieldY);
-                plugin.saveGames();
-                activeGame.placeHeads();
-                //activeGame.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
-            } else {
+
+        if (activeGame.getGame().hasLost() || activeGame.getGame().hasWon() || activeGame.getGame().getField().getState(fieldX, fieldY) >= Field.BOMB_STATE) {
+            if (player.hasPermission("sweeper.lookup")) {
                 player.sendMessage("This is game has game number " + gameNr);
             }
-        } else {
-            player.sendMessage("This is game has game number " + gameNr);
+            return;
         }
+
+        activeGame.getGame().flag(fieldX, fieldY);
+        plugin.saveGames();
+        activeGame.placeHeads();
     }
 }

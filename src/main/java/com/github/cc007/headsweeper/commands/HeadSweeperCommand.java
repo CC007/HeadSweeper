@@ -64,6 +64,11 @@ public class HeadSweeperCommand implements CommandExecutor {
 
                 return true;
             case "reset":
+                
+                if (!sender.hasPermission("sweeper.reset")) {
+                    return false;
+                }
+                
                 if (args.length < 2 || !isInteger(args[1])) {
                     sender.sendMessage("You didn't specify which minesweeper board to reset!");
                     return false;
@@ -85,6 +90,10 @@ public class HeadSweeperCommand implements CommandExecutor {
                 return true;
             case "create":
 
+                if (!sender.hasPermission("sweeper.manage")) {
+                    return false;
+                }
+                
                 if (args.length < 5) {
                     return false;
                 }
@@ -123,6 +132,10 @@ public class HeadSweeperCommand implements CommandExecutor {
                 return true;
             case "delete":
 
+                if (!sender.hasPermission("sweeper.manage")) {
+                    return false;
+                }
+                
                 if (args.length < 2 || !isInteger(args[1])) {
                     sender.sendMessage(ChatColor.RED + "You didn't specify which minesweeper board to delete!");
                     return false;

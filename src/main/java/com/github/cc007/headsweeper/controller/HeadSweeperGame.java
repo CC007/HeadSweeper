@@ -60,30 +60,30 @@ public class HeadSweeperGame {
         this.game = game;
         this.world = world;
         this.plugin = plugin;
-        
+
         initMetaData();
     }
 
     public HeadSweeperGame(JsonObject input, Plugin plugin) {
-        
+
         this.plugin = plugin;
-        
+
         x = input.getAsJsonPrimitive("x").getAsInt();
         y = input.getAsJsonPrimitive("y").getAsInt();
         z = input.getAsJsonPrimitive("z").getAsInt();
-        
+
         game = new MineSweeper(true);
         game.deserialize(input.getAsJsonObject("game"));
-        
+
         world = null;
-        
+
         try {
             UUID worldUID = UUID.fromString(input.getAsJsonPrimitive("world").getAsString());
             world = Bukkit.getServer().getWorld(worldUID);
         } catch (IllegalArgumentException e) {
             world = Bukkit.getServer().getWorld(input.getAsJsonPrimitive("world").getAsString());
         }
-        
+
         initMetaData();
     }
 
@@ -244,18 +244,33 @@ public class HeadSweeperGame {
     }
 
     private void initMetaData() {
-        for (int x = this.getX(); x <  this.getX() + this.getGame().getField().getWidth(); x++) {
-                for (int z = this.getZ(); z <  this.getZ() + this.getGame().getField().getHeight(); z++) {
-                    
-                    Block headBlock = this.getWorld().getBlockAt(x, this.getY(), z);
-                    headBlock.setMetadata("sweeperBlock", new FixedMetadataValue(plugin, "headBlock"));
-                    
-                    if (this.getY() != 0) {
-                        Block underBlock = this.getWorld().getBlockAt(x, this.getY() - 1, z);
-                        underBlock.setMetadata("sweeperBlock", new FixedMetadataValue(plugin, "underBlock"));
-                    }
+        for (int i = x; i < x + this.getGame().getField().getWidth(); i++) {
+            for (int j = z; j < z + this.getGame().getField().getHeight(); j++) {
+
+                Block headBlock = this.getWorld().getBlockAt(i, this.getY(), j);
+                headBlock.setMetadata("sweeperBlock", new FixedMetadataValue(plugin, "headBlock"));
+
+                if (this.getY() != 0) {
+                    Block underBlock = this.getWorld().getBlockAt(i, this.getY() - 1, j);
+                    underBlock.setMetadata("sweeperBlock", new FixedMetadataValue(plugin, "underBlock"));
                 }
             }
+        }
     }
-    
+
+    void removeMetaData() {
+        for (int i = x; i < x + this.getGame().getField().getWidth(); i++) {
+            for (int j = this.getZ(); j < z + this.getGame().getField().getHeight(); j++) {
+
+                Block headBlock = this.getWorld().getBlockAt(i, this.getY(), j);
+                headBlock.removeMetadata("sweeperBlock", plugin);
+
+                if (this.getY() != 0) {
+                    Block underBlock = this.getWorld().getBlockAt(i, this.getY() - 1, j);
+                    underBlock.removeMetadata("sweeperBlock", plugin);
+                }
+            }
+        }
+    }
+
 }
