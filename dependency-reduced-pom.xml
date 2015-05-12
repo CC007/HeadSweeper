@@ -74,14 +74,13 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <minimizeJar>false</minimizeJar>
+              <minimizeJar>true</minimizeJar>
               <artifactSet>
                 <excludes>
                   <exclude>org.spigotmc:*</exclude>
                   <exclude>org.bukkit:*</exclude>
                   <exclude>jline:jline</exclude>
                   <exclude>org.yaml:snakeyaml</exclude>
-                  <exclude>com.google.code.gson:gson</exclude>
                   <exclude>com.google.guava:guava</exclude>
                   <exclude>net.md-5:bungeecord-chat</exclude>
                   <exclude>junit:junit</exclude>
@@ -98,7 +97,20 @@
               </artifactSet>
               <filters>
                 <filter>
+                  <artifact>${project.groupId}:HeadsPlugin</artifact>
+                  <excludes>
+                    <exclude>com/github/cc007/headsutils/**</exclude>
+                  </excludes>
+                </filter>
+                <filter>
                   <artifact>${project.groupId}:HeadsUtils</artifact>
+                  <excludes>
+                    <exclude>com/google/gson/**</exclude>
+                    <exclude>org/apache/commons/**</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>${project.groupId}:MCSweeper</artifact>
                   <excludes>
                     <exclude>com/google/gson/**</exclude>
                   </excludes>
