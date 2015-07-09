@@ -12,3 +12,5 @@
 hs_err_pid*
 /nbactions.xml
 /target/
+/nbactions-snapshot-profile.xml
+/nbactions-release-profile.xml

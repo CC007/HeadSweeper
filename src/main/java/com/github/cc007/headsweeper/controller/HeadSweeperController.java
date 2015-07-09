@@ -29,7 +29,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -38,7 +37,7 @@ import org.bukkit.command.CommandSender;
 
 /**
  *
- * @author Rik Schaaf aka CC007 <http://coolcat007.nl/>
+ * @author Rik Schaaf aka CC007 (http://coolcat007.nl/)
  */
 public class HeadSweeperController {
 
@@ -64,7 +63,7 @@ public class HeadSweeperController {
 
     public void createNewField(int x, int y, int z, int width, int height, int bombCount, CommandSender sender, World world) {
         if (this.isIntersecting(world, x, y, z, width, height)) {
-            sender.sendMessage(ChatColor.RED + "There already is a minesweeper game at the specified location!");
+            sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "There already is a minesweeper game at the specified location!");
         } else {
             HeadSweeperGame newGame = new HeadSweeperGame(x, y, z, new MineSweeper(width, height, bombCount), world, plugin);
             newGame.getGame().resetField();
@@ -73,7 +72,7 @@ public class HeadSweeperController {
             plugin.saveGames();
             newGame.placeHeads();
             newGame.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
-            sender.sendMessage(ChatColor.GREEN + "The new minesweeper game has been created with game number " + index + ".");
+            sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The new minesweeper game has been created with game number " + index + ".");
         }
     }
 

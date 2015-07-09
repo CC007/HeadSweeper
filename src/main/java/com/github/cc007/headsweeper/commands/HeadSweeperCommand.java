@@ -35,7 +35,7 @@ import org.bukkit.entity.Player;
 
 /**
  *
- * @author Autom
+ * @author Rik Schaaf aka CC007 (http://coolcat007.nl/)
  */
 public class HeadSweeperCommand implements CommandExecutor {
 
@@ -49,7 +49,7 @@ public class HeadSweeperCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
 
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.GOLD + "Use: /headsweeper (updateheads | reset <boardnr> | create (<worldname> <xloc> <yloc> <zloc>|here) <width in x> <depth in z> <bombcount> | delete <boardnr>)");
+            sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GOLD + "Use: /headsweeper (updateheads | reset <boardnr> | create (<worldname> <xloc> <yloc> <zloc>|here) <width in x> <depth in z> <bombcount> | delete <boardnr>)");
             return false;
         }
 
@@ -61,7 +61,7 @@ public class HeadSweeperCommand implements CommandExecutor {
                 }
 
                 plugin.getHeadsUtils().loadCategory("sweeper");
-
+                plugin.initHeads();
                 return true;
             case "reset":
                 
@@ -70,14 +70,14 @@ public class HeadSweeperCommand implements CommandExecutor {
                 }
                 
                 if (args.length < 2 || !isInteger(args[1])) {
-                    sender.sendMessage("You didn't specify which minesweeper board to reset!");
+                    sender.sendMessage(plugin.pluginChatPrefix() + "You didn't specify which minesweeper board to reset!");
                     return false;
                 }
 
                 HeadSweeperGame game = plugin.getController().getGame(Integer.parseInt(args[1]));
 
                 if (game == null) {
-                    sender.sendMessage(ChatColor.RED + "There is no game with that game number!" + ChatColor.GOLD + "Tip: rightclick a game to get its number.");
+                    sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "There is no game with that game number!" + ChatColor.GOLD + "Tip: rightclick a game to get its number.");
                     return false;
                 }
 
@@ -85,7 +85,7 @@ public class HeadSweeperCommand implements CommandExecutor {
                 game.placeHeads();
                 //game.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
                 
-                sender.sendMessage(ChatColor.GREEN + "The board has been reset.");
+                sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The board has been reset.");
 
                 return true;
             case "create":
@@ -137,14 +137,14 @@ public class HeadSweeperCommand implements CommandExecutor {
                 }
                 
                 if (args.length < 2 || !isInteger(args[1])) {
-                    sender.sendMessage(ChatColor.RED + "You didn't specify which minesweeper board to delete!");
+                    sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "You didn't specify which minesweeper board to delete!");
                     return false;
                 }
 
                 if (!plugin.getController().removeGame(Integer.parseInt(args[1]))) {
-                    sender.sendMessage(ChatColor.RED + "There is no game with that game number!" + ChatColor.GOLD + "Tip: rightclick a game to get its number.");
+                    sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "There is no game with that game number!" + ChatColor.GOLD + "Tip: rightclick a game to get its number.");
                 } else {
-                    sender.sendMessage(ChatColor.GREEN + "The board has been deleted.");
+                    sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The board has been deleted.");
                 }
                 return true;
             default:

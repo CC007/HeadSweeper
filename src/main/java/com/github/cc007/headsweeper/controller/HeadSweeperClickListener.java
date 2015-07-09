@@ -25,7 +25,6 @@ package com.github.cc007.headsweeper.controller;
 
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.mcsweeper.api.Field;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -36,7 +35,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 /**
  *
- * @author Rik Schaaf aka CC007 <http://coolcat007.nl/>
+ * @author Rik Schaaf aka CC007 (http://coolcat007.nl/)
  */
 public class HeadSweeperClickListener implements Listener {
 
@@ -78,13 +77,13 @@ public class HeadSweeperClickListener implements Listener {
 
     public void headClicked(int x, int y, int z, Player player, HeadSweeperGame activeGame) {
         if (!player.hasPermission("sweeper.interact")) {
-            player.sendMessage(ChatColor.RED + "You don't have the permission to play minesweeper games. Ask an operator if you think you should have the permission.");
+            player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "You don't have the permission to play minesweeper games. Ask an operator if you think you should have the permission.");
             return;
         }
         int gameNr = plugin.getController().getGameNr(activeGame);
 
         if (activeGame.getGame().hasWon() || activeGame.getGame().hasLost()) {
-            player.sendMessage(ChatColor.RED + "The game has already ended. Reset this board to play a new game.");
+            player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The game has already ended. Reset this board to play a new game.");
             return;
         }
 
@@ -95,9 +94,9 @@ public class HeadSweeperClickListener implements Listener {
         activeGame.placeHeads();
         //activeGame.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
         if (activeGame.getGame().hasWon()) {
-            player.sendMessage(ChatColor.GREEN + "You have won the game! Reset the board to play another game.");
+            player.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "You have won the game! Reset the board to play another game.");
         } else if (activeGame.getGame().hasLost()) {
-            player.sendMessage(ChatColor.RED + "You have lost the game! Reset the board to play another game.");
+            player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "You have lost the game! Reset the board to play another game.");
         }
 
     }
@@ -109,7 +108,7 @@ public class HeadSweeperClickListener implements Listener {
 
         if (activeGame.getGame().hasLost() || activeGame.getGame().hasWon() || activeGame.getGame().getField().getState(fieldX, fieldY) >= Field.BOMB_STATE) {
             if (player.hasPermission("sweeper.lookup")) {
-                player.sendMessage("This is game has game number " + gameNr);
+                player.sendMessage(plugin.pluginChatPrefix() + "This is game has game number " + gameNr);
             }
             return;
         }

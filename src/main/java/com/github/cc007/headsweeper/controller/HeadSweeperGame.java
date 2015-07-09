@@ -42,7 +42,7 @@ import org.bukkit.plugin.Plugin;
 
 /**
  *
- * @author Rik Schaaf aka CC007 <http://coolcat007.nl/>
+ * @author Rik Schaaf aka CC007 (http://coolcat007.nl/)
  */
 public class HeadSweeperGame {
 

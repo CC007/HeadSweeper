@@ -45,13 +45,14 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.ChatColor;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 /**
  *
- * @author Rik Schaaf aka CC007 <http://coolcat007.nl/>
+ * @author Rik Schaaf aka CC007 (http://coolcat007.nl/)
  */
 public class HeadSweeper extends HeadsPlugin {
 
@@ -70,21 +71,21 @@ public class HeadSweeper extends HeadsPlugin {
     @Override
     public void onEnable() {
         log = getLogger();
-        
+
         /* Config stuffs */
         this.getCategoriesConfig().options().copyDefaults(true);
         saveDefaultConfig();
-        
+
         /* Setup the utils */
         log.log(Level.INFO, "Initializing minesweeper heads...");
         headsUtils = HeadsUtils.getInstance(log);
         headsUtils.loadCategory("sweeper");
         initHeads();
         log.log(Level.INFO, "Sweeperheads initialized");
-        
+
         /* setup controller */
         loadGames();
-        
+
         /* setup the listener */
         clickListener = new HeadSweeperClickListener(this);
 
@@ -180,7 +181,7 @@ public class HeadSweeper extends HeadsPlugin {
                 log.log(Level.SEVERE, "Couldn't create sweeperGames.json");
             }
         }
-        
+
         JsonObject json = controller.serialize();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
             writer.write(json.toString());
@@ -192,8 +193,6 @@ public class HeadSweeper extends HeadsPlugin {
 
     /**
      * load the list of available games from the json file
-     *
-     * @return the list of available games
      */
     public void loadGames() {
         log.log(Level.INFO, "Create controller...");
@@ -210,13 +209,13 @@ public class HeadSweeper extends HeadsPlugin {
             while (scanner.hasNextLine()) {
                 jsonString += scanner.nextLine();
             }
-            
-            if (jsonString == "") {
+
+            if ("".equals(jsonString)) {
                 jsonString = "{}";
             }
-            
+
             JsonParser parser = new JsonParser();
-            
+
             controller = new HeadSweeperController(parser.parse(jsonString).getAsJsonObject(), this);
             log.log(Level.INFO, "Games loaded.");
         } catch (FileNotFoundException ex) {
@@ -227,7 +226,7 @@ public class HeadSweeper extends HeadsPlugin {
     /**
      * Initialize the heads that will be used for the head sweeper game
      */
-    private void initHeads() {
+    public void initHeads() {
         NUMBER_HEADS = new HashMap<>();
         List<Head> heads = getHeadsUtils().getCategoryHeads("sweeper");
         for (Head head : heads) {
@@ -249,5 +248,14 @@ public class HeadSweeper extends HeadsPlugin {
             getLogger().log(Level.SEVERE, "Minesweeper heads have not been properly initialized!");
         }
     }
-    
+
+    /**
+     * get the minecraft chat prefix for this plugin
+     *
+     * @return the minecraft chat prefix for this plugin
+     */
+    public String pluginChatPrefix() {
+        return ChatColor.DARK_AQUA + "[" + ChatColor.GOLD + "Head" + ChatColor.RED + "Sweeper" + ChatColor.DARK_AQUA + "]" + ChatColor.WHITE + " ";
+    }
+
 }
