@@ -23,9 +23,9 @@
  */
 package com.github.cc007.headsweeper.controller;
 
-import com.github.cc007.headsplugin.heads.HeadCreator;
-import com.github.cc007.headsplugin.heads.HeadsPlacer;
-import com.github.cc007.headsutils.heads.Head;
+import com.github.cc007.headsplugin.bukkit.HeadCreator;
+import com.github.cc007.headsplugin.bukkit.HeadsPlacer;
+import com.github.cc007.headsplugin.utils.heads.Head;
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.mcsweeper.api.Field;
 import com.github.cc007.mcsweeper.api.Sweeper;

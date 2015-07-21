@@ -24,7 +24,7 @@
 package com.github.cc007.headsweeper.commands;
 
 import com.github.cc007.headsweeper.HeadSweeper;
-import com.github.cc007.headsutils.heads.HeadsCategory;
+import com.github.cc007.headsplugin.utils.heads.HeadsCategory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

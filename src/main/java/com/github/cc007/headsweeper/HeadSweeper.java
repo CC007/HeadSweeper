@@ -26,9 +26,9 @@ package com.github.cc007.headsweeper;
 import com.github.cc007.headsweeper.commands.HeadSweeperCommand;
 import com.github.cc007.headsweeper.commands.HeadSweeperTabCompleter;
 import com.github.cc007.headsplugin.HeadsPlugin;
-import com.github.cc007.headsutils.HeadsUtils;
-import com.github.cc007.headsutils.heads.Head;
-import com.github.cc007.headsutils.heads.HeadsCategory;
+import com.github.cc007.headsplugin.utils.HeadsUtils;
+import com.github.cc007.headsplugin.utils.heads.Head;
+import com.github.cc007.headsplugin.utils.heads.HeadsCategory;
 import com.github.cc007.headsweeper.controller.HeadSweeperClickListener;
 import com.github.cc007.headsweeper.controller.HeadSweeperController;
 import com.google.gson.JsonObject;
@@ -63,28 +63,22 @@ public class HeadSweeper extends HeadsPlugin {
 
     private Plugin vault = null;
     private Permission permission = null;
-    private HeadsUtils headsUtils;
     private HeadSweeperClickListener clickListener;
     private HeadSweeperController controller;
-    private Logger log;
 
     @Override
-    public void onEnable() {
-        log = getLogger();
-
+    public void onEnableHeadsPlugin() {
         /* Config stuffs */
         this.getCategoriesConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
-        /* Setup the utils */
+        /* Setup the sweeper heads */
         log.log(Level.INFO, "Initializing minesweeper heads...");
-        headsUtils = HeadsUtils.getInstance(log);
-        headsUtils.loadCategory("sweeper");
         initHeads();
         log.log(Level.INFO, "Sweeperheads initialized");
 
         /* setup controller */
-        loadGames();
+        loadGames(); // has logs, doesn't need extra
 
         /* setup the listener */
         clickListener = new HeadSweeperClickListener(this);
@@ -101,13 +95,8 @@ public class HeadSweeper extends HeadsPlugin {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisableHeadsPlugin() {
         PlayerInteractEvent.getHandlerList().unregister(clickListener);
-        for (HeadsCategory category : headsUtils.getCategories().getList()) {
-            category.clear();
-        }
-        headsUtils.getCategories().clear();
-        headsUtils = null;
         vault = null;
         permission = null;
     }
@@ -152,15 +141,6 @@ public class HeadSweeper extends HeadsPlugin {
     }
 
     /**
-     * Get the HeadUtils instance
-     *
-     * @return the HeadUtils instance
-     */
-    public HeadsUtils getHeadsUtils() {
-        return headsUtils;
-    }
-
-    /**
      * Get the HeadSweeper controller
      *
      * @return the HeadSweeper controller
@@ -195,13 +175,15 @@ public class HeadSweeper extends HeadsPlugin {
      * load the list of available games from the json file
      */
     public void loadGames() {
-        log.log(Level.INFO, "Create controller...");
-        log.log(Level.INFO, "Controller created.");
         log.log(Level.INFO, "Loading games...");
         File file = new File(getDataFolder(), "sweeperGames.json");
         if (!file.exists()) {
             log.log(Level.INFO, "First use of this plugin: generate sweeperGames.json");
-            saveGames();
+            try {
+                file.createNewFile();
+            } catch (IOException ex) {
+                log.log(Level.SEVERE, "Couldn't create sweeperGames.json");
+            }
             log.log(Level.INFO, "Games loaded.");
         }
         String jsonString = "";
@@ -216,8 +198,9 @@ public class HeadSweeper extends HeadsPlugin {
 
             JsonParser parser = new JsonParser();
 
+            log.log(Level.INFO, "Create controller...");
             controller = new HeadSweeperController(parser.parse(jsonString).getAsJsonObject(), this);
-            log.log(Level.INFO, "Games loaded.");
+            log.log(Level.INFO, "Controller created.");
         } catch (FileNotFoundException ex) {
             log.log(Level.SEVERE, "Couldn't read from sweeperGames.json", ex);
         }
