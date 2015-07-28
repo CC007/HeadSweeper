@@ -41,7 +41,7 @@ import org.bukkit.command.CommandSender;
  */
 public class HeadSweeperController {
 
-    private List<HeadSweeperGame> sweeperGames;
+    private final List<HeadSweeperGame> sweeperGames;
     private final HeadSweeper plugin;
 
     public HeadSweeperController(HeadSweeper plugin, List<HeadSweeperGame> sweeperGames) {

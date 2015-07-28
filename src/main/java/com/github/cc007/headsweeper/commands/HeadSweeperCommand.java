@@ -23,6 +23,7 @@
  */
 package com.github.cc007.headsweeper.commands;
 
+import com.github.cc007.headsplugin.utils.HeadsUtils;
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.headsweeper.controller.HeadSweeperGame;
 import org.bukkit.Bukkit;
@@ -55,20 +56,19 @@ public class HeadSweeperCommand implements CommandExecutor {
 
         switch (args[0].toLowerCase()) {
             case "updateheads":
-
                 if (!sender.hasPermission("sweeper.update")) {
                     return false;
                 }
 
-                plugin.getHeadsUtils().loadCategory("sweeper");
+                HeadsUtils.getInstance().loadCategory("sweeper");
                 plugin.initHeads();
                 return true;
-            case "reset":
                 
+            case "reset":
                 if (!sender.hasPermission("sweeper.reset")) {
                     return false;
                 }
-                
+
                 if (args.length < 2 || !isInteger(args[1])) {
                     sender.sendMessage(plugin.pluginChatPrefix() + "You didn't specify which minesweeper board to reset!");
                     return false;
@@ -84,16 +84,15 @@ public class HeadSweeperCommand implements CommandExecutor {
                 game.getGame().resetField();
                 game.placeHeads();
                 //game.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
-                
+
                 sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The board has been reset.");
-
                 return true;
+                
             case "create":
-
                 if (!sender.hasPermission("sweeper.manage")) {
                     return false;
                 }
-                
+
                 if (args.length < 5) {
                     return false;
                 }
@@ -135,7 +134,7 @@ public class HeadSweeperCommand implements CommandExecutor {
                 if (!sender.hasPermission("sweeper.manage")) {
                     return false;
                 }
-                
+
                 if (args.length < 2 || !isInteger(args[1])) {
                     sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "You didn't specify which minesweeper board to delete!");
                     return false;
