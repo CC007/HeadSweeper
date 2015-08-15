@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.cc007</groupId>
   <artifactId>HeadSweeper</artifactId>
-  <version>1.1.4</version>
+  <version>1.1.5</version>
   <developers>
     <developer>
       <id>cc007</id>
@@ -93,6 +93,7 @@
                   <exclude>javax.persistence:persistence-api</exclude>
                   <exclude>mysql:mysql-connector-java</exclude>
                   <exclude>net.milkbowl.vault:Vault</exclude>
+                  <exclude>com.github.cc007:HeadsPlugin</exclude>
                 </excludes>
               </artifactSet>
               <filters>
@@ -133,7 +134,19 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.8.7-R0.1-SNAPSHOT</version>
+      <version>1.8.8-R0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.github.cc007</groupId>
+      <artifactId>HeadsPlugin</artifactId>
+      <version>1.1.0</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

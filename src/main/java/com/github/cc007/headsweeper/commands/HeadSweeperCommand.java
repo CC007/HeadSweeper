@@ -26,6 +26,9 @@ package com.github.cc007.headsweeper.commands;
 import com.github.cc007.headsplugin.utils.HeadsUtils;
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.headsweeper.controller.HeadSweeperGame;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -60,10 +63,14 @@ public class HeadSweeperCommand implements CommandExecutor {
                     return false;
                 }
 
-                HeadsUtils.getInstance().loadCategory("sweeper");
+                try {
+                    HeadsUtils.getInstance().loadCategory("sweeper");
+                } catch (IOException ex) {
+                    Logger.getLogger(HeadSweeperCommand.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 plugin.initHeads();
                 return true;
-                
+
             case "reset":
                 if (!sender.hasPermission("sweeper.reset")) {
                     return false;
@@ -82,12 +89,13 @@ public class HeadSweeperCommand implements CommandExecutor {
                 }
 
                 game.getGame().resetField();
+                plugin.saveGames();
                 game.placeHeads();
                 //game.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
 
                 sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The board has been reset.");
                 return true;
-                
+
             case "create":
                 if (!sender.hasPermission("sweeper.manage")) {
                     return false;
