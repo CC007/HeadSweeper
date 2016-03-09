@@ -23,6 +23,7 @@
  */
 package com.github.cc007.headsweeper;
 
+import com.github.cc007.headsplugin.exceptions.AuthenticationException;
 import com.github.cc007.headsweeper.commands.HeadSweeperCommand;
 import com.github.cc007.headsplugin.utils.HeadsUtils;
 import com.github.cc007.headsplugin.utils.heads.Head;
@@ -57,6 +58,7 @@ public class HeadSweeper extends JavaPlugin {
     public static Head FLAG_HEAD;
     public static Head BOMB_HEAD;
     public static Map<Integer, Head> NUMBER_HEADS;
+    private boolean init = false;
 
     private Plugin vault = null;
     private Permission permission = null;
@@ -69,7 +71,7 @@ public class HeadSweeper extends JavaPlugin {
         if (!getDataFolder().exists()) {
             getLogger().log(Level.INFO, "Data folder doesn't exist yet, creating folder");
             getDataFolder().mkdir();
-        }else{
+        } else {
             getLogger().log(Level.INFO, "Data folder already exists");
         }
 
@@ -123,6 +125,16 @@ public class HeadSweeper extends JavaPlugin {
         return (permission != null);
     }
 
+    
+    /**
+     * Get if the heads are initialized
+     * 
+     * @return true if they are initialized, otherwise false
+     */
+    public boolean isInit() {
+        return init;
+    }
+    
     /**
      * Get the vault
      *
@@ -211,26 +223,38 @@ public class HeadSweeper extends JavaPlugin {
      * Initialize the heads that will be used for the head sweeper game
      */
     public void initHeads() {
+        try {
+            HeadsUtils.getInstance().loadCategory("sweeper");
+        } catch (IOException ex) {
+            getLogger().log(Level.SEVERE, null, ex);
+        } catch (AuthenticationException ex) {
+            getLogger().log(Level.WARNING, "You don't have permission to load the sweeper category.");
+        }
         NUMBER_HEADS = new HashMap<>();
         List<Head> heads = HeadsUtils.getInstance().getCategoryHeads("sweeper");
-        for (Head head : heads) {
-            if (head.getName().equalsIgnoreCase("Minesweeper Unknown Tile")) {
-                UNKNOWN_HEAD = head;
-            } else if (head.getName().equalsIgnoreCase("Minesweeper Flag Tile")) {
-                FLAG_HEAD = head;
-            } else if (head.getName().equalsIgnoreCase("TNT [1.8]")) {
-                BOMB_HEAD = head;
-            } else {
-                for (int i = 0; i < 9; i++) {
-                    if (head.getName().equalsIgnoreCase("Minesweeper " + i + " Tile")) {
-                        NUMBER_HEADS.put(i, head);
+        if (heads != null) {
+            for (Head head : heads) {
+                if (head.getName().equalsIgnoreCase("Minesweeper Unknown Tile")) {
+                    UNKNOWN_HEAD = head;
+                } else if (head.getName().equalsIgnoreCase("Minesweeper Flag Tile")) {
+                    FLAG_HEAD = head;
+                } else if (head.getName().equalsIgnoreCase("TNT [1.8]")) {
+                    BOMB_HEAD = head;
+                } else {
+                    for (int i = 0; i < 9; i++) {
+                        if (head.getName().equalsIgnoreCase("Minesweeper " + i + " Tile")) {
+                            NUMBER_HEADS.put(i, head);
+                        }
                     }
                 }
             }
         }
         if ((UNKNOWN_HEAD == null || BOMB_HEAD == null) || NUMBER_HEADS.size() != 9) {
             getLogger().log(Level.SEVERE, "Minesweeper heads have not been properly initialized!");
-        }
+            init = false;
+        }else{
+            init = true;
+        }        
     }
 
     /**

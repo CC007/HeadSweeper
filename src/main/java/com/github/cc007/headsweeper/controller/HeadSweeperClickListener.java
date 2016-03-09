@@ -25,6 +25,11 @@ package com.github.cc007.headsweeper.controller;
 
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.mcsweeper.api.Field;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -39,10 +44,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
  */
 public class HeadSweeperClickListener implements Listener {
 
-    private HeadSweeper plugin;
+    private final HeadSweeper plugin;
+    private final Map<Integer, Date> lastFlagged;
 
     public HeadSweeperClickListener(HeadSweeper plugin) {
         this.plugin = plugin;
+        lastFlagged = new HashMap<>();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -80,8 +87,6 @@ public class HeadSweeperClickListener implements Listener {
             player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "You don't have the permission to play minesweeper games. Ask an operator if you think you should have the permission.");
             return;
         }
-        int gameNr = plugin.getController().getGameNr(activeGame);
-
         if (activeGame.getGame().hasWon() || activeGame.getGame().hasLost()) {
             player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The game has already ended. Reset this board to play a new game.");
             return;
@@ -91,8 +96,12 @@ public class HeadSweeperClickListener implements Listener {
         int fieldY = z - activeGame.getZ();
         activeGame.getGame().sweep(fieldX, fieldY);
         plugin.saveGames();
-        activeGame.placeHeads();
-        //activeGame.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
+        if (plugin.isInit()) {
+            activeGame.placeHeads();
+        } else {
+            plugin.getLogger().log(Level.SEVERE, "The plugin has not properly been initialized. Run /headsweeper updateheads to initialize the heads for this plugin");
+            player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The plugin has not properly been initialized. Contact an admin to fix this issue");
+        }
         if (activeGame.getGame().hasWon()) {
             player.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "You have won the game! Reset the board to play another game.");
         } else if (activeGame.getGame().hasLost()) {
@@ -103,6 +112,16 @@ public class HeadSweeperClickListener implements Listener {
 
     public void headFlagged(int x, int y, int z, Player player, HeadSweeperGame activeGame) {
         int gameNr = plugin.getController().getGameNr(activeGame);
+        if (lastFlagged.containsKey(gameNr) && lastFlagged.get(gameNr) != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date());
+            cal.add(Calendar.MILLISECOND, -250);
+            Date checkDate = cal.getTime();
+            if (lastFlagged.get(gameNr).after(checkDate)) {
+                return;
+            }
+        }
+        lastFlagged.put(gameNr, new Date());
         int fieldX = x - activeGame.getX();
         int fieldY = z - activeGame.getZ();
 
@@ -115,6 +134,11 @@ public class HeadSweeperClickListener implements Listener {
 
         activeGame.getGame().flag(fieldX, fieldY);
         plugin.saveGames();
-        activeGame.placeHeads();
+        if (plugin.isInit()) {
+            activeGame.placeHeads();
+        } else {
+            plugin.getLogger().log(Level.SEVERE, "The plugin has not properly been initialized. Run /headsweeper updateheads to initialize the heads for this plugin");
+            player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The plugin has not properly been initialized. Contact an admin to fix this issue");
+        }
     }
 }

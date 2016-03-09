@@ -23,12 +23,12 @@
  */
 package com.github.cc007.headsweeper.commands;
 
+import com.github.cc007.headsplugin.exceptions.AuthenticationException;
 import com.github.cc007.headsplugin.utils.HeadsUtils;
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.headsweeper.controller.HeadSweeperGame;
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -66,9 +66,16 @@ public class HeadSweeperCommand implements CommandExecutor {
                 try {
                     HeadsUtils.getInstance().loadCategory("sweeper");
                 } catch (IOException ex) {
-                    Logger.getLogger(HeadSweeperCommand.class.getName()).log(Level.SEVERE, null, ex);
+                    HeadsUtils.getLogger().log(Level.SEVERE, null, ex);
+                } catch (AuthenticationException ex) {
+                    HeadsUtils.getLogger().log(Level.WARNING, "This plugin is not properly authenticated. Please check your HeadsPlugin configuration");
                 }
                 plugin.initHeads();
+                if (plugin.isInit()) {
+                    sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GOLD + "Minesweeper heads are initialized.");
+                } else {
+                    sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "Minesweeper heads have not been properly initialized. Is HeadsPlugin properly authenticated?");
+                }
                 return true;
 
             case "reset":
@@ -90,10 +97,14 @@ public class HeadSweeperCommand implements CommandExecutor {
 
                 game.getGame().resetField();
                 plugin.saveGames();
-                game.placeHeads();
-                //game.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
+                if (plugin.isInit()) {
+                    game.placeHeads();
+                    sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The board has been reset.");
+                } else {
+                    plugin.getLogger().log(Level.SEVERE, "The plugin has not properly been initialized. Run /headsweeper updateheads to initialize the heads for this plugin");
+                    sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The plugin has not properly been initialized. Run '/headsweeper updateheads' to initialize the heads for this plugin");
+                }
 
-                sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The board has been reset.");
                 return true;
 
             case "create":
@@ -155,6 +166,7 @@ public class HeadSweeperCommand implements CommandExecutor {
                 }
                 return true;
             default:
+                sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "Unknown command. Use: /headsweeper (updateheads | reset <boardnr> | create (<worldname> <xloc> <yloc> <zloc>|here) <width in x> <depth in z> <bombcount> | delete <boardnr>)");
                 return false;
         }
     }

@@ -29,6 +29,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -70,9 +71,14 @@ public class HeadSweeperController {
             int index = sweeperGames.size();
             sweeperGames.add(newGame);
             plugin.saveGames();
-            newGame.placeHeads();
-            newGame.placeHeads();//Due to a bug it can happen that heads have no texture, therefore do twice to make sure all textures are set
-            sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The new minesweeper game has been created with game number " + index + ".");
+            if (plugin.isInit()) {
+                newGame.placeHeads();
+                sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The new minesweeper game has been created with game number " + index + ".");
+            } else {
+                plugin.getLogger().log(Level.SEVERE, "The plugin has not properly been initialized. Run /headsweeper updateheads to initialize the heads for this plugin");
+                sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The plugin has not properly been initialized. Run /headsweeper updateheads to initialize the heads for this plugin");
+                removeGame(index);
+            }
         }
     }
 
@@ -94,19 +100,17 @@ public class HeadSweeperController {
     }
 
     public HeadSweeperGame getActiveGame(Block block) {
-        
-        int x = block.getX(), y = block.getY(), z = block.getZ();
-        
         if (!block.hasMetadata("sweeperBlock") || !block.getMetadata("sweeperBlock").get(0).asString().equals("headBlock")) {
             return null;
         }
+        int x = block.getX(), y = block.getY(), z = block.getZ();
 
         for (HeadSweeperGame sweeperGame : sweeperGames) {
             if (sweeperGame.isInField(block.getWorld(), x, y, z)) {
                 return sweeperGame;
             }
         }
-        
+
         return null;
     }
 
