@@ -27,7 +27,10 @@ import com.github.cc007.headsplugin.exceptions.AuthenticationException;
 import com.github.cc007.headsplugin.utils.HeadsUtils;
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.headsweeper.controller.HeadSweeperGame;
+import com.github.cc007.headsweeper.events.BoardExplodedEvent;
+import com.github.cc007.headsweeper.events.BoardResetEvent;
 import java.io.IOException;
+import java.util.Date;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -99,6 +102,11 @@ public class HeadSweeperCommand implements CommandExecutor {
                 plugin.saveGames();
                 if (plugin.isInit()) {
                     game.placeHeads();
+                    Player player = null;
+                    if(sender instanceof Player){
+                        player = (Player)sender;
+                    }
+                    Bukkit.getServer().getPluginManager().callEvent(new BoardResetEvent(player, Integer.parseInt(args[1]), new Date()));
                     sender.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "The board has been reset.");
                 } else {
                     plugin.getLogger().log(Level.SEVERE, "The plugin has not properly been initialized. Run /headsweeper updateheads to initialize the heads for this plugin");

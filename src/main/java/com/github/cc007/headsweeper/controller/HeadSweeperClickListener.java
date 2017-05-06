@@ -24,13 +24,17 @@
 package com.github.cc007.headsweeper.controller;
 
 import com.github.cc007.headsweeper.HeadSweeper;
+import com.github.cc007.headsweeper.events.BoardCompletedEvent;
+import com.github.cc007.headsweeper.events.BoardExplodedEvent;
 import com.github.cc007.mcsweeper.api.Field;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -103,14 +107,20 @@ public class HeadSweeperClickListener implements Listener {
             player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The plugin has not properly been initialized. Contact an admin to fix this issue");
         }
         if (activeGame.getGame().hasWon()) {
+            Bukkit.getServer().getPluginManager().callEvent(new BoardCompletedEvent(player, plugin.getController().getGameNr(activeGame), new Location(player.getWorld(), x, y, z), new Date()));
             player.sendMessage(plugin.pluginChatPrefix() + ChatColor.GREEN + "You have won the game! Reset the board to play another game.");
         } else if (activeGame.getGame().hasLost()) {
+            Bukkit.getServer().getPluginManager().callEvent(new BoardExplodedEvent(player, plugin.getController().getGameNr(activeGame), new Location(player.getWorld(), x, y, z), new Date()));
             player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "You have lost the game! Reset the board to play another game.");
         }
 
     }
 
     public void headFlagged(int x, int y, int z, Player player, HeadSweeperGame activeGame) {
+        if (!player.hasPermission("sweeper.interact")) {
+            player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "You don't have the permission to play minesweeper games. Ask an operator if you think you should have the permission.");
+            return;
+        }
         int gameNr = plugin.getController().getGameNr(activeGame);
         if (lastFlagged.containsKey(gameNr) && lastFlagged.get(gameNr) != null) {
             Calendar cal = Calendar.getInstance();
