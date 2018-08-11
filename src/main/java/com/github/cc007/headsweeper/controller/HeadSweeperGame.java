@@ -36,6 +36,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
@@ -208,7 +209,7 @@ public class HeadSweeperGame {
             for (int j = 0; j < game.getField().getHeight(); j++) {
                 Head head = getHeadAt(i, j);
                 ItemStack stack = HeadCreator.getItemStack(head);
-                HeadsPlacer.placeHead(stack, x + i, y, z + j, 0, world, Bukkit.getLogger());
+                HeadsPlacer.placeHead(stack, x + i, y, z + j, BlockFace.NORTH, world, Bukkit.getLogger());
             }
         }
     }
