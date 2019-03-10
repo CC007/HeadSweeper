@@ -224,7 +224,9 @@ public class HeadSweeper extends JavaPlugin {
      */
     public void initHeads() {
         try {
-            HeadsUtils.getInstance().loadCategory("sweeper");
+            if(!HeadsUtils.getInstance().getCategories().hasCategory("sweeper")){
+                HeadsUtils.getInstance().loadCategory("sweeper");
+            }
         } catch (IOException ex) {
             getLogger().log(Level.SEVERE, null, ex);
         } catch (AuthenticationException ex) {

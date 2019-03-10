@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.cc007</groupId>
   <artifactId>HeadSweeper</artifactId>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
   <developers>
     <developer>
       <id>cc007</id>
@@ -93,7 +93,7 @@
                   <exclude>javax.persistence:persistence-api</exclude>
                   <exclude>mysql:mysql-connector-java</exclude>
                   <exclude>net.milkbowl.vault:Vault</exclude>
-                  <exclude>com.github.cc007:HeadsPlugin</exclude>
+                  <exclude>com.github.cc007:HeadsPluginAPI</exclude>
                 </excludes>
               </artifactSet>
               <filters>
@@ -121,10 +121,6 @@
       <id>spigot-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
     </repository>
-    <repository>
-      <id>vault-repo</id>
-      <url>http://nexus.hc.to/content/repositories/pub_releases</url>
-    </repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -140,6 +136,18 @@
         <exclusion>
           <artifactId>gson</artifactId>
           <groupId>com.google.code.gson</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.github.cc007</groupId>
+      <artifactId>HeadsPluginAPI</artifactId>
+      <version>1.9.0</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
         </exclusion>
       </exclusions>
     </dependency>
