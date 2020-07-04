@@ -96,7 +96,6 @@
             <version>1.7.3</version>
             <scope>provided</scope>
         </dependency>
-        
     </dependencies>
 
     <!-- Build settings -->
