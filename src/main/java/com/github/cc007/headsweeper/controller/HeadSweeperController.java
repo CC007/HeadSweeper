@@ -25,19 +25,20 @@ package com.github.cc007.headsweeper.controller;
 
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.mcsweeper.implementation.MineSweeper;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+
 /**
- *
  * @author Rik Schaaf aka CC007 (http://coolcat007.nl/)
  */
 public class HeadSweeperController {
