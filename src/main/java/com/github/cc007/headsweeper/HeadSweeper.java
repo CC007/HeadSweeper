@@ -23,12 +23,13 @@
  */
 package com.github.cc007.headsweeper;
 
-import com.github.cc007.headsplugin.exceptions.AuthenticationException;
+import com.github.cc007.headsplugin.api.HeadsPluginApi;
+import com.github.cc007.headsplugin.api.business.domain.Head;
+import com.github.cc007.headsplugin.api.business.services.heads.HeadSearcher;
 import com.github.cc007.headsweeper.commands.HeadSweeperCommand;
-import com.github.cc007.headsplugin.utils.HeadsUtils;
-import com.github.cc007.headsplugin.utils.heads.Head;
 import com.github.cc007.headsweeper.controller.HeadSweeperClickListener;
 import com.github.cc007.headsweeper.controller.HeadSweeperController;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.BufferedWriter;
@@ -37,9 +38,9 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.logging.Level;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.ChatColor;
@@ -64,6 +65,12 @@ public class HeadSweeper extends JavaPlugin {
     private Permission permission = null;
     private HeadSweeperClickListener clickListener;
     private HeadSweeperController controller;
+
+    @Override
+    public void onLoad() {
+        getLogger().info("Added class loader to HeadsPlugin springClassLoaders");
+        HeadsPluginApi.addSpringClassLoader(getClassLoader());
+    }
 
     @Override
     public void onEnable() {
@@ -199,64 +206,70 @@ public class HeadSweeper extends JavaPlugin {
             }
             getLogger().log(Level.INFO, "Games loaded.");
         }
-        String jsonString = "";
         try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                jsonString += scanner.nextLine();
-            }
-
-            if ("".equals(jsonString)) {
-                jsonString = "{}";
-            }
-
+            String jsonString = getJsonString(scanner);
             JsonParser parser = new JsonParser();
+            JsonObject jsonObject = parser.parse(jsonString).getAsJsonObject();
 
             getLogger().log(Level.INFO, "Create controller...");
-            controller = new HeadSweeperController(parser.parse(jsonString).getAsJsonObject(), this);
+            controller = new HeadSweeperController(jsonObject, this);
             getLogger().log(Level.INFO, "Controller created.");
         } catch (FileNotFoundException ex) {
             getLogger().log(Level.SEVERE, "Couldn't read from sweeperGames.json", ex);
         }
     }
 
+    private String getJsonString(Scanner scanner) {
+        StringBuilder jsonStringBuilder = new StringBuilder();
+        while (scanner.hasNextLine()) {
+            jsonStringBuilder.append(scanner.nextLine());
+        }
+        String jsonString = jsonStringBuilder.toString();
+
+        if ("".equals(jsonString)) {
+            jsonString = "{}";
+        }
+        return jsonString;
+    }
+
     /**
      * Initialize the heads that will be used for the head sweeper game
      */
     public void initHeads() {
-        try {
-            if(!HeadsUtils.getInstance().getCategories().hasCategory("sweeper")){
-                HeadsUtils.getInstance().loadCategory("sweeper");
-            }
-        } catch (IOException ex) {
-            getLogger().log(Level.SEVERE, null, ex);
-        } catch (AuthenticationException ex) {
-            getLogger().log(Level.WARNING, "You don't have permission to load the sweeper category.");
-        }
+        HeadSearcher headSearcher = HeadsPluginApi.getInstance().getHeadSearcher();
+
+        // make sure that the heads are in the database
+        headSearcher.getHeads("Minesweeper");
+        headSearcher.getHeads("TNT");
+
+        UNKNOWN_HEAD = getHead("unknown tile", "5ec2960e-8233-3ca4-b235-7a9af34755fd", "30deb948-c6d0-48c1-9899-e61f9a8257c0");
+        FLAG_HEAD = getHead("flag tile", "96f10d25-92c6-3b82-a961-203e49b88162", "cce8d286-c327-4bdc-a2f4-8e6b75eed62a");
+        BOMB_HEAD = getHead("bomb tile", "a4341464-f2c9-3b3e-8941-3e6de5f105ea", "3d80d659-36cd-4aee-8540-8cdb548ede75");
+
         NUMBER_HEADS = new HashMap<>();
-        List<Head> heads = HeadsUtils.getInstance().getCategoryHeads("sweeper");
-        if (heads != null) {
-            for (Head head : heads) {
-                if (head.getName().equalsIgnoreCase("Minesweeper Unknown Tile")) {
-                    UNKNOWN_HEAD = head;
-                } else if (head.getName().equalsIgnoreCase("Minesweeper Flag Tile")) {
-                    FLAG_HEAD = head;
-                } else if (head.getName().equalsIgnoreCase("TNT [1.8]")) {
-                    BOMB_HEAD = head;
-                } else {
-                    for (int i = 0; i < 9; i++) {
-                        if (head.getName().equalsIgnoreCase("Minesweeper " + i + " Tile")) {
-                            NUMBER_HEADS.put(i, head);
-                        }
-                    }
-                }
-            }
-        }
-        if ((UNKNOWN_HEAD == null || BOMB_HEAD == null) || NUMBER_HEADS.size() != 9) {
-            getLogger().log(Level.SEVERE, "Minesweeper heads have not been properly initialized!");
-            init = false;
-        }else{
-            init = true;
-        }        
+        NUMBER_HEADS.put(0, getHead("0 tile", "d5a38870-020b-3063-9f46-148ba463db20", "9d756ab9-765c-41a5-8c8e-853203c5c274"));
+        NUMBER_HEADS.put(1, getHead("1 tile", "1cb8b22b-6ff1-34c7-834f-d2601f00ceef", "9b9255a2-6f65-48ee-a877-2000505047bd"));
+        NUMBER_HEADS.put(2, getHead("2 tile", "5c38d26d-19e6-3a3e-b553-be25ab855392", "30beeb33-cd7b-4b26-bbf6-24225741cf33"));
+        NUMBER_HEADS.put(3, getHead("3 tile", "2ce77649-ad2c-3c5f-ab70-127669354c46", "98b890ff-fa7e-4fd0-a27b-99e6883a6219"));
+        NUMBER_HEADS.put(4, getHead("4 tile", "c9e002f0-9d72-3856-ba33-d66d7870bfe3", "aa109b98-76c2-4336-b50e-cbce1bb8e45f"));
+        NUMBER_HEADS.put(5, getHead("5 tile", "abe8f80a-0f82-32b3-b0f4-28113bf6a713", "50970266-12e0-4b36-aa2c-6093027fcdb3"));
+        NUMBER_HEADS.put(6, getHead("6 tile", "233037d3-4937-38f2-bb4b-56c34a80f730", "a8a879cd-174e-40bd-9699-117c498e245f"));
+        NUMBER_HEADS.put(7, getHead("7 tile", "c1ca5b99-c159-36f0-a29a-d488e6efc7e5", "9538924b-fa99-4f9b-8663-911a6c784501"));
+        NUMBER_HEADS.put(8, getHead("8 tile", "f63b5c7b-0980-35ab-b386-b74985ef5b6a", "ef74d8b9-065c-4d04-ac75-c813ae48a845"));
+
+        init = true;
+    }
+
+    private Head getHead(String headName, String primaryUuid, String secondaryUuid) {
+        HeadSearcher headSearcher = HeadsPluginApi.getInstance().getHeadSearcher();
+
+        return headSearcher.getHead(UUID.fromString(primaryUuid))
+                .orElseGet(() -> headSearcher.getHead(UUID.fromString(secondaryUuid))
+                        .orElseThrow(() -> {
+                            init = false;
+                            return new IllegalStateException("Minesweeper heads have not been properly initialized: " + headName + " head not found!");
+                        })
+                );
     }
 
     /**

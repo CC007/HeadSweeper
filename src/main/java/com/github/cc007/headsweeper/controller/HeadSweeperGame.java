@@ -23,23 +23,25 @@
  */
 package com.github.cc007.headsweeper.controller;
 
-import com.github.cc007.headsplugin.bukkit.HeadCreator;
-import com.github.cc007.headsplugin.bukkit.HeadsPlacer;
-import com.github.cc007.headsplugin.utils.heads.Head;
+import com.github.cc007.headsplugin.api.HeadsPluginApi;
+import com.github.cc007.headsplugin.api.business.domain.Head;
+import com.github.cc007.headsplugin.api.business.services.heads.HeadPlacer;
 import com.github.cc007.headsweeper.HeadSweeper;
 import com.github.cc007.mcsweeper.api.Field;
 import com.github.cc007.mcsweeper.api.Sweeper;
 import com.github.cc007.mcsweeper.implementation.MineSweeper;
+
 import com.google.gson.JsonObject;
-import java.util.UUID;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
+
+import java.util.UUID;
 
 /**
  *
@@ -205,11 +207,12 @@ public class HeadSweeperGame {
     }
 
     public void placeHeads() {
+        HeadPlacer headPlacer = HeadsPluginApi.getInstance().getHeadPlacer();
         for (int i = 0; i < game.getField().getWidth(); i++) {
             for (int j = 0; j < game.getField().getHeight(); j++) {
                 Head head = getHeadAt(i, j);
-                ItemStack stack = HeadCreator.getItemStack(head);
-                HeadsPlacer.placeHead(stack, x + i, y, z + j, BlockFace.NORTH, world, Bukkit.getLogger());
+                Location headLocation = new Location(world, x + i, y, z + j);
+                headPlacer.placeHead(head, headLocation, BlockFace.NORTH);
             }
         }
     }
