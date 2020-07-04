@@ -10,7 +10,17 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/nbactions.xml
-/target/
-/nbactions-snapshot-profile.xml
-/nbactions-release-profile.xml
+
+# Netbeans files
+**/nbactions.xml
+**/core/nbactions-release-profile.xml
+**/core/nbactions-snapshot-profile.xml
+**/nb-configuration.xml
+
+# Intellij files
+**/.idea/
+**/*.iml
+
+# Maven files
+**/dependency-reduced-pom.xml
+**/target/
