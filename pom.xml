@@ -46,7 +46,7 @@
             <id>cc007-lib-releases-repo</id>
             <url>https://github.com/CC007/maven-repo/raw/master/lib-releases</url>
         </repository>
-        
+
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
@@ -62,6 +62,12 @@
         <repository>
             <id>vault-repo</id>
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+        </repository>
+
+        <!-- BStats repo -->
+        <repository>
+            <id>CodeMC</id>
+            <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
     </repositories>
     <dependencies>
@@ -95,6 +101,12 @@
             <artifactId>Vault</artifactId>
             <version>1.7.3</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>1.7</version>
         </dependency>
     </dependencies>
 
@@ -163,27 +175,12 @@
                         </goals>
                         <configuration>
                             <minimizeJar>true</minimizeJar>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.spigotmc:*</exclude>
-                                    <exclude>org.bukkit:*</exclude>
-                                    <exclude>jline:jline</exclude>
-                                    <exclude>org.yaml:snakeyaml</exclude>
-                                    <exclude>com.google.guava:guava</exclude>
-                                    <exclude>net.md-5:bungeecord-chat</exclude>
-                                    <exclude>junit:junit</exclude>
-                                    <exclude>net.sf.jopt-simple:jopt-simple</exclude>
-                                    <exclude>org.avaje:ebean</exclude>
-                                    <exclude>commons-lang:commons-lang</exclude>
-                                    <exclude>com.googlecode.json-simple:json-simple</exclude>
-                                    <exclude>org.hamcrest:hamcrest-core</exclude>
-                                    <exclude>org.xerial:sqlite-jdbc</exclude>
-                                    <exclude>javax.persistence:persistence-api</exclude>
-                                    <exclude>mysql:mysql-connector-java</exclude>
-                                    <exclude>net.milkbowl.vault:Vault</exclude>
-                                    <exclude>com.github.cc007:HeadsPluginAPI</exclude>
-                                </excludes>
-                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.bstats</pattern>
+                                    <shadedPattern>com.github.cc007.headsweeper.bstats</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <filters>
                                 <filter>
                                     <artifact>${project.groupId}:MCSweeper</artifact>

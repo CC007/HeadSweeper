@@ -43,6 +43,7 @@ import java.util.Scanner;
 import java.util.UUID;
 import java.util.logging.Level;
 import net.milkbowl.vault.permission.Permission;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
@@ -81,6 +82,9 @@ public class HeadSweeper extends JavaPlugin {
         } else {
             getLogger().log(Level.INFO, "Data folder already exists");
         }
+
+        /* Configure BStats metrics */
+        Metrics metrics = new Metrics(this, 5876);
 
         /* Setup the sweeper heads */
         getLogger().log(Level.INFO, "Initializing minesweeper heads...");
