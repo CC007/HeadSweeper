@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.cc007</groupId>
     <artifactId>HeadSweeper</artifactId>
-    <version>1.5.1</version>
+    <version>1.6.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,13 +56,13 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>       
+        </repository>
 
         <!-- Vault repo -->
-<!--        <repository>
+        <repository>
             <id>vault-repo</id>
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
-        </repository> -->
+        </repository>
     </repositories>
     <dependencies>
         
@@ -70,30 +70,16 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.code.gson</groupId>
-                    <artifactId>gson</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>1.15-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         
         <!-- HeadsPlugin API -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>HeadsPluginAPI</artifactId>
-            <version>1.9.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.github.cc007</groupId>
+            <artifactId>headsplugin-api</artifactId>
+            <version>2.0.0</version>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Minesweeper API -->
@@ -107,9 +93,9 @@
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>Vault</artifactId>
-            <version>1.6.6</version>
+            <version>1.7.3</version>
+            <scope>provided</scope>
         </dependency>
-        
     </dependencies>
 
     <!-- Build settings -->
