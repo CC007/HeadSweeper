@@ -207,7 +207,7 @@ public class HeadSweeperGame {
     }
 
     public void placeHeads() {
-        HeadPlacer headPlacer = HeadsPluginApi.getInstance().getHeadPlacer();
+        HeadPlacer headPlacer = HeadsPluginApi.getHeadsPluginServices().orElseThrow(IllegalStateException::new).headPlacer();
         for (int i = 0; i < game.getField().getWidth(); i++) {
             for (int j = 0; j < game.getField().getHeight(); j++) {
                 Head head = getHeadAt(i, j);

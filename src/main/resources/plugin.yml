@@ -1,5 +1,6 @@
 name: HeadSweeper
 version: ${version}
+api-version: "1.13"
 main: com.github.cc007.headsweeper.HeadSweeper
 author: CC007 
 website: http://coolcat007.nl/
