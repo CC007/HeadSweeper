@@ -35,6 +35,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -93,6 +94,10 @@ public class HeadSweeperClickListener implements Listener {
         }
         if (activeGame.getGame().hasWon() || activeGame.getGame().hasLost()) {
             player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The game has already ended. Reset this board to play a new game.");
+
+            // Bugfix for clientside bug that shows steve head for clicked tiles in 1.19
+            activeGame.getWorld().getBlockAt(x, y, z).setType(Material.SKELETON_SKULL);
+            Bukkit.getScheduler().runTaskLater(plugin, activeGame::placeHeads, 2);
             return;
         }
 
@@ -101,7 +106,9 @@ public class HeadSweeperClickListener implements Listener {
         activeGame.getGame().sweep(fieldX, fieldY);
         plugin.saveGames();
         if (plugin.isInit()) {
-            activeGame.placeHeads();
+            // Bugfix for clientside bug that shows steve head for clicked tiles in 1.19
+            activeGame.getWorld().getBlockAt(x, y, z).setType(Material.SKELETON_SKULL);
+            Bukkit.getScheduler().runTaskLater(plugin, activeGame::placeHeads, 2);
         } else {
             plugin.getLogger().log(Level.SEVERE, "The plugin has not properly been initialized. Run /headsweeper updateheads to initialize the heads for this plugin");
             player.sendMessage(plugin.pluginChatPrefix() + ChatColor.RED + "The plugin has not properly been initialized. Contact an admin to fix this issue");
