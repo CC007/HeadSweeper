@@ -44,6 +44,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
@@ -84,10 +85,7 @@ public class HeadSweeper extends JavaPlugin {
         getLogger().log(Level.INFO, "Initializing minesweeper heads...");
         initHeads();
         getLogger().log(Level.INFO, "Sweeperheads initialized");
-
-        /* setup controller */
-        loadGames(); // has logs, doesn't need extra
-
+        
         /* setup the listener */
         clickListener = new HeadSweeperClickListener(this);
 
@@ -99,6 +97,9 @@ public class HeadSweeper extends JavaPlugin {
 
         /* Register commands */
         getCommand("headsweeper").setExecutor(new HeadSweeperCommand(this));
+        
+        /* setup controller */
+        Bukkit.getScheduler().runTaskLater(this, this::loadGames, 10);
 
     }
 
