@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -41,6 +43,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 /**
@@ -58,6 +62,39 @@ public class HeadSweeperClickListener implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
+
+    /**
+     * Event handler for handling left clicks in adventure mode
+     * @param event the {@link PlayerAnimationEvent}
+     */
+    @EventHandler
+    public void onPlayerAnimation(PlayerAnimationEvent event) {
+        if (!event.getPlayer().getGameMode().equals(GameMode.ADVENTURE)) {
+            return;
+        }
+        if(!event.getAnimationType().equals(PlayerAnimationType.ARM_SWING)){
+            return;
+        }
+        plugin.getLogger().info(event.toString());
+        
+        Block clickedBlock = event.getPlayer().getTargetBlockExact(32, FluidCollisionMode.NEVER);
+
+        if (clickedBlock == null) {
+            return;
+        }
+
+        if (clickedBlock.hasMetadata("sweeperBlock") && clickedBlock.getMetadata("sweeperBlock").get(0).asString().equals("underBlock")) {
+            return;
+        }
+
+        HeadSweeperGame activeGame = plugin.getController().getActiveGame(clickedBlock);
+
+        if (activeGame == null) {
+            return;
+        }
+        headClicked(clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ(), event.getPlayer(), activeGame);
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
 
@@ -72,7 +109,7 @@ public class HeadSweeperClickListener implements Listener {
             return;
         }
 
-        HeadSweeperGame activeGame = plugin.getController().getActiveGame(clickedBlock.getWorld(), clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ());
+        HeadSweeperGame activeGame = plugin.getController().getActiveGame(clickedBlock);
 
         if (activeGame == null) {
             return;
@@ -80,9 +117,9 @@ public class HeadSweeperClickListener implements Listener {
 
         event.setCancelled(true);
         if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            headClicked(event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ(), event.getPlayer(), activeGame);
+            headClicked(clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ(), event.getPlayer(), activeGame);
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            headFlagged(event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ(), event.getPlayer(), activeGame);
+            headFlagged(clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ(), event.getPlayer(), activeGame);
         }
 
     }
